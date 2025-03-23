@@ -4,9 +4,6 @@ import io.hhplus.tdd.point.PointHistory
 import io.hhplus.tdd.point.TransactionType
 
 class PointHistoryFakeTable: PointHistoryTable() {
-    private val table = mutableListOf<PointHistory>()
-    private var cursor: Long = 1L
-
     override fun insert(
         id: Long,
         amount: Long,
@@ -14,18 +11,28 @@ class PointHistoryFakeTable: PointHistoryTable() {
         updateMillis: Long,
     ): PointHistory {
         Thread.sleep(Math.random().toLong() * 300L)
-        val history = PointHistory(
-            id = cursor++,
+        return PointHistory(
+            id = 1L,
             userId = id,
             amount = amount,
             type = transactionType,
             timeMillis = updateMillis,
         )
-        table.add(history)
-        return history
     }
 
     override fun selectAllByUserId(userId: Long): List<PointHistory> {
-        return table.filter { it.userId == userId }
+        return listOf(PointHistory(
+            id = 1L,
+            userId = userId,
+            amount = 10L,
+            type = TransactionType.CHARGE,
+            timeMillis = System.currentTimeMillis()
+        ), PointHistory(
+            id = 2L,
+            userId = userId,
+            amount = 10L,
+            type = TransactionType.USE,
+            timeMillis = System.currentTimeMillis()
+        ))
     }
 }
