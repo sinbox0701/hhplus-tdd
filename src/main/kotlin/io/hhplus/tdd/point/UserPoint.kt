@@ -18,24 +18,24 @@ data class UserPoint(
     }
 
     fun charge(amount: Long) {
-        if (amount < MIN_AMOUNT_PER_CHARGE || amount > MAX_AMOUNT_PER_CHARGE) {
+        if (amount < MIN_AMOUNT_PER_CHARGE || amount > MAX_AMOUNT_PER_CHARGE)
             throw Exception("Recharge is possible from 1 point to 100 million points.")
-        }
 
-        if (point + amount > MAX_TOTAL_AMOUNT) {
+
+        if (point + amount > MAX_TOTAL_AMOUNT)
             throw Exception("You have exceeded the maximum rechargeable points.")
-        }
+
         point += amount
     }
 
     fun use(amount: Long) {
-        if (amount < MIN_AMOUNT_PER_USE || amount > MAX_AMOUNT_PER_USE) {
+        if (amount < MIN_AMOUNT_PER_USE || amount > MAX_AMOUNT_PER_USE)
             throw Exception("Usage is possible from 1 point to 100 million points.")
-        }
 
-        if (point < amount) {
+
+        if (point < amount)
             throw Exception("You cannot use more points than you have.")
-        }
+
 
         point -= amount
 
