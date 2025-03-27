@@ -5,6 +5,8 @@ import org.junit.jupiter.api.fail
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
 import kotlin.random.Random
 import org.junit.jupiter.api.Assertions.assertEquals
 
@@ -55,5 +57,64 @@ class PointServiceIntegration {
         assertEquals(amountUse, lastUseHistory.amount)
         assertEquals(TransactionType.USE, lastUseHistory.type)
         assertEquals(pointAfterUse1.updateMillis, lastUseHistory.timeMillis)
+    }
+
+    enum class CommandType{ USE, CHARGE}
+    class Command(
+        val type: CommandType,
+        val amount: Long,
+    )
+
+    @Test fun `충전 동시성 테스트`() {
+        //given
+        val threadSize = 10
+        val userId = 1L
+        val amount = 50L
+
+        val executorService = Executors.newFixedThreadPool(threadSize)
+        val doneSignal = CountDownLatch(threadSize)
+
+        //when
+        for (i in 1..threadSize) {
+            executorService.execute {
+                sut.charge(userId, amount)
+                doneSignal.countDown()
+            }
+        }
+
+        doneSignal.await()
+        executorService.shutdown()
+
+        val result = sut.findUserPointById(userId)
+
+        //then
+        assertEquals(amount * threadSize, result.point)
+    }
+
+    @Test fun `사용 동시성 테스트`() {
+        //given
+        val threadSize = 5
+        val userId = 1L
+        val amount = 50L
+        sut.charge(userId, amount * threadSize)
+
+        val executorService = Executors.newFixedThreadPool(threadSize)
+        val doneSignal = CountDownLatch(threadSize)
+
+        //when
+        for (i in 1..threadSize) {
+            executorService.execute {
+                sut.use(userId, amount)
+                doneSignal.countDown()
+            }
+        }
+
+        doneSignal.await()
+        executorService.shutdown()
+
+        val result = sut.findUserPointById(userId)
+
+        //then
+        assertEquals(0, result.point)
     }
 }
