@@ -2,17 +2,19 @@ package io.hhplus.tdd.point
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import kotlin.random.Random
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.boot.test.context.SpringBootTest
 
-
+@SpringBootTest
 class PointServiceIntegration {
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
+
 
     @Autowired
     private lateinit var sut: PointServiceImpl
@@ -93,7 +95,7 @@ class PointServiceIntegration {
 
     @Test fun `사용 동시성 테스트`() {
         //given
-        val threadSize = 5
+        val threadSize = 50
         val userId = 1L
         val amount = 50L
         sut.charge(userId, amount * threadSize)
