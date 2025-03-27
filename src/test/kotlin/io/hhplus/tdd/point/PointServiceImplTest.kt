@@ -2,15 +2,17 @@ package io.hhplus.tdd.point
 
 import io.hhplus.tdd.database.PointHistoryTable
 import io.hhplus.tdd.database.UserPointTable
+import io.hhplus.tdd.lock.ReentrantLockManager
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 
 class PointServiceImplTest {
+    private val lockManager = ReentrantLockManager()
     private val pointHistoryTable = PointHistoryTable()
     private val userPointTable = UserPointTable()
 
-    private val sut: PointServiceImpl = PointServiceImpl(userPointTable,pointHistoryTable)
+    private val sut: PointServiceImpl = PointServiceImpl(lockManager,userPointTable,pointHistoryTable)
 
     @Test fun `입력 받은 id로 UserPoint 조회 시, 해당 id의 UserPoint 반환`(){
         val userId = Random.nextLong()
